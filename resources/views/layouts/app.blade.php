@@ -16,24 +16,29 @@
       [x-cloak] {
                 display: none !important;
             }
+      .car {
+        z-index: 2;
+      }
     </style>
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
 </head>
-<body class="overflow-x-hidden">
+<body class="overflow-x-hidden relative w-[100vw]">
+    
     @livewire('notifications')
     @filamentScripts
-    <div class="grid grid-cols-[auto,1fr] gap-0"> 
+    @livewireChartsScripts
+    
+    <div class="grid grid-cols-[auto,1fr] place-items-center gap-0 bg-[#252629]">
         <livewire:layout.sidenavigation />
-        <div class="min-h-screen {{ $mode === 'dark' ? 'bg-[#262837] text-white' : 'bg-gray-100 text-black' }} overflow-hidden">
+        <div class="car h-[95vh] w-[83vw] overflow-y-auto rounded-lg {{ $mode === 'dark' ? 'bg-[#262837] text-white' : 'bg-[#f7f7f7] text-black' }} overflow-hidden">
             <livewire:layout.navigation />
-            <livewire:chatmodal />
 
             <!-- Page Heading -->
             @if (isset($header))
-                <header class="{{ $mode === 'dark' ? 'bg-[#262837]' : 'bg-gray-100' }}">
+                <header class="{{ $mode === 'dark' ? 'bg-[#262837]' : 'bg-transparent' }}">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
@@ -41,7 +46,7 @@
             @endif
 
             <!-- Page Content -->
-            <main class="overflow-x-hidden w-[80vw]">
+            <main class="overflow-x-hidden w-[93.5vw]">
                 {{ $slot }}
             </main>
         </div>

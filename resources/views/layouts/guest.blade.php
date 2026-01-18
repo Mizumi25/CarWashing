@@ -15,15 +15,18 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
-            <span>
-              <h1 class="text-[#4393f2] text-4xl font-bold mb-[40px]">
-                Car Wash Reservation
-              </h1>
-            </span>
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gradient-to-tl from-[#ebf2fd] 0% to-[#b0fa62] 100%">
+            <div class="grid grid-cols-1 w-[30%] mt-6 bg-white/75 shadow-lg overflow-hidden sm:rounded-lg ">
+                
+                <div class='px-6 py-6'>
+                    <span>
+                    <h1 class="text-[#4393f2] text-2xl text-center font-bold mb-[40px]">
+                        Car Wash Reservation
+                    </h1>
+                    </span>
 
-            <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md overflow-hidden sm:rounded-lg">
-                {{ $slot }}
+                    {{ $slot }}
+                </div>
             </div>
         </div>
         <x-toaster-hub />

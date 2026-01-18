@@ -19,7 +19,7 @@ return new class extends Migration
             $table->float('price', 8, 2); 
             $table->integer('duration'); 
             $table->boolean('is_active')->default(true); 
-            $table->string('category')->nullable(); 
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->integer('popularity')->default(0); 
             $table->timestamps();
         });

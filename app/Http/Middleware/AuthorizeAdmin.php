@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
-use Masmerise\Toaster\Toaster;
+
 
 class AuthorizeAdmin
 {
@@ -24,7 +24,6 @@ class AuthorizeAdmin
 
         if (Auth::check()) {
             if (Auth::user()->role === 'client') {
-                Toaster::success('Welcome'); 
                 return redirect('/new-reservations');
             } elseif (Auth::user()->role === 'admin') {
                 return $next($request);

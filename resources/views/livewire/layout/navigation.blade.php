@@ -16,65 +16,69 @@ new class extends Component
     }
 }; ?>
 
-<nav x-data="{ open: false }" class="{{ $mode === 'dark' ? 'bg-[#262837] text-white' : 'bg-gray-100 text-black border-gray-100 border-b' }}">
+<nav x-data="{ open: false }" class="relative {{ $mode === 'dark' ? 'bg-[#262837] text-white' : 'bg-transparent text-black ' }}">
+    
+<livewire:digitalclock />
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
+            <div class="flex mt-2">
+                <!-- Logo Section -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('welcome') }}" wire:navigate>
                         <span>
-                          <h1 class="text-2xl text-black lg:hidden md:hidden block">Car Wash Reservation</h1>
+                            <!-- For mobile view -->
+                            <h1 class="text-2xl text-black lg:hidden md:hidden block">
+                                Hello, {{ auth()->user()->name }} 👋
+                            </h1>
+                            <p class="text-sm bg-gradient-to-r from-green-500 to-white bg-clip-text text-transparent lg:hidden md:hidden block">
+                                Let's check your reservations today!
+                            </p>
                         </span>
                     </a>
                 </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex justify-center items-center">
-                    <a href="{{ route('dashboard') }}" wire:navigate>
-                          {{ __('Panel') }}
-                      </a>
-                </div>
-                
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex justify-center items-center">
-                    <a href="{{ route('welcome') }}" wire:navigate>
-                        {{ __('Home') }}
+                <!-- For desktop view -->
+                <div class="sm:hidden lg:flex block space-x-8 sm:-my-px sm:ms-10 justify-center items-center">
+                    <a href="{{ route('welcome') }}">
+                        <div class="text-2xl text-black">
+                            Hello, {{ auth()->user()->name }} 👋
+                        </div>
+                        <p class="text-sm bg-gradient-to-r from-green-700 to-green-300 bg-clip-text text-transparent">
+                            Let's check your reservations today!
+                        </p>
                     </a>
                 </div>
-                
-                @auth
-                  @if(auth()->user()->role === 'admin')
-                      <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex justify-center items-center">
-                          <a href="/admin" wire:navigate>
-                              {{ __('Admin') }}
-                          </a>
-                      </div>
-                  @endif
-              @endauth
             </div>
+
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-3">
-              <div class="text-black">
+              <div class="text-black flex flex-row justify-between items-center">
+                <livewire:chatmodal />
                 @livewire('database-notifications')
               </div>
-              
-              <img id="profileImagePreview" src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile Picture" class="h-[2rem] w-[2rem] cursor-pointer object-cover rounded-full backdrop-filter backdrop-grayscale backdrop-blur-md backdrop-contrast-200">
+
+              <span class="text-black">|</span>
+              <a href="{{ url('/profile') }}">
+                <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile Picture" class="h-[2rem] w-[2rem] cursor-pointer object-cover rounded-full backdrop-filter backdrop-grayscale backdrop-blur-md backdrop-contrast-200">
+              </a>
               
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
-
+                            <div class="flex flex-col items-start justify-start">
+                                <div x-data="{{ json_encode(['name' => auth()->user()->name]) }}" x-text="name" x-on:profile-updated.window="name = $event.detail.name"></div>
+                                <div class="text-[12px] text-gray-400"  x-data="{{ json_encode(['email' => auth()->user()->email]) }}" x-text="email"></div>
+                            </div>
                             <div class="ms-1">
                                 <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                 </svg>
                             </div>
                         </button>
+                        
                     </x-slot>
-
                     <x-slot name="content">
                      <livewire:themeswitcher />
                       

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
 use Filament\Forms\Components\FileUpload;
+use Carbon\Carbon;
 
 
 class UserResource extends Resource
@@ -32,7 +33,7 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\FileUpload::make('profile_picture')->disk('public') ->directory('profile_pictures'),
+                Forms\Components\FileUpload::make('profile_picture')->disk('public')->directory('profile_pictures')->required(),
                 Forms\Components\TextInput::make('name')->required(),
                 Forms\Components\TextInput::make('email')->email()->required(),
                 Forms\Components\TextInput::make('phone_number'),
@@ -42,7 +43,8 @@ class UserResource extends Resource
                     'admin' => 'Admin',
                 ])->placeholder(' ')
                 ->required()
-                ->default('client'), 
+                ->default('client'),
+                Forms\Components\DateTimePicker::make('email_verified_at')->default(Carbon::now())->required()->readonly(), 
             ]);
     }
 
@@ -50,15 +52,12 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('is_active')->sortable()->icon(function (bool $state): string
-                {
-                  return match ($state) {
-                    true => 'heroicon-s-check-circle',
-                    false => 'heroicon-s-x-circle'
-                    };
-                  })->color(function (bool $state): string {
-                    return $state ? 'success' : 'gray'; 
-                }),
+                Tables\Columns\IconColumn::make('is_active')->sortable()
+                ->boolean()
+                ->trueIcon('heroicon-s-check-circle')
+                ->falseIcon('heroicon-s-x-circle')
+                ->trueColor('success')
+                ->falseColor('gray'),
                 Tables\Columns\ImageColumn::make('profile_picture')->circular(),
                 Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('email')->searchable(),
@@ -78,6 +77,7 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -91,7 +91,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\VehiclesRelationManager::class,
         ];
     }
 
@@ -100,6 +100,7 @@ class UserResource extends Resource
         return [
             'index' => Pages\ListUsers::route('/'),
             'create' => Pages\CreateUser::route('/create'),
+            'view' => Pages\ViewUser::route('/{record}'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }

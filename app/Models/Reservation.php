@@ -17,6 +17,7 @@ class Reservation extends Model
         'vehicle_id',
         'service_id',
         'schedule_id',
+        'package_id',
         'payment_id',
         'reservation_date',
         'status',
@@ -37,6 +38,11 @@ class Reservation extends Model
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+
+    public function package()
+    {
+        return $this->belongsTo(Package::class);
     }
 
     public function schedule()

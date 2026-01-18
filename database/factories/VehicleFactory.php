@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Vehicle; // Ensure you import the Vehicle model
+use App\Models\Vehicle; 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class VehicleFactory extends Factory
@@ -22,7 +22,6 @@ class VehicleFactory extends Factory
             'year' => $this->faker->year(),
             'license_plate' => strtoupper($this->faker->bothify('???-####')),
             'color' => $this->faker->safeColorName(),
-            'mileage' => $this->faker->numberBetween(5000, 200000),
         ];
     }
 }

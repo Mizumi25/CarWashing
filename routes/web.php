@@ -25,17 +25,17 @@ Route::view('vehicles', 'MyVehicles')
 
    
     
-Route::get('continue-reservations/{id}/{service_name}', function ($id, $service_name) {
-    $reservation = Reservation::findOrFail($id);  
-    
-    if ($reservation->user_id !== Auth::id()) {
-        abort(403, 'Unauthorized action.'); 
-    }
-    
-    return view('reservations', compact('reservation', 'service_name'));
-})
-    ->middleware(['auth', 'verified'])
-    ->name('reservation.continue');
+    Route::get('continue-reservations/{id}/{service_name}', function ($id, $service_name) {
+        $reservation = Reservation::findOrFail($id);  
+        
+        if ($reservation->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.'); 
+        }
+        
+        return view('reservations', compact('reservation', 'service_name'));
+    })
+        ->middleware(['auth', 'verified'])
+        ->name('reservation.continue');
     
     
 Route::get('continue-reservations/{id}/{service_name}/{amount}/{payment_method}/{payment_status}/reserved', function ($id, $service_name, $amount, $payment_method, $payment_status) {

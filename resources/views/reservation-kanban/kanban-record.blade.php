@@ -31,9 +31,12 @@
            <div class="h-3 bg-gray-400 rounded-full"></div>
            <div class="absolute h-3 bg-primary-500 rounded-full top-0" style="width: {{ $record->additional_data['progress'] }}%;"></div>
         </div>
+        
   
   </div>
    <div class="text-gray-400 w-1/4 h-full">{{ $record->additional_data['names'] ?? 'N/A' }}</div>
-      
+   <div class='w-1/4 h-1/4'>
+        <img src="{{ asset('storage/' . $record->additional_data['profile_pictures'] ?? 'N/A' ) }}" alt="Profile Picture" class="h-1/4 w-1/4 cursor-pointer object-cover rounded-full backdrop-filter backdrop-grayscale backdrop-blur-md backdrop-contrast-200">
+    </div>
 
 </div>

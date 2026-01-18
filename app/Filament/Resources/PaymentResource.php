@@ -60,13 +60,63 @@ class PaymentResource extends Resource
       return static::getModel()::count() > 10 ? 'warning' : 'success';
     }
 
+    public function afterSave()
+    {
+        $totalAmount = $this->record->reservation->vehicle->vehicleType->price + $this->record->reservation->service->price;
+        $paidAmount = $this->record->amount;
+
+        // Update payment status
+        if ($paidAmount == $totalAmount) {
+            $this->record->payment_status = 'fully_paid';
+        } elseif ($paidAmount > 0) {
+            $this->record->payment_status = 'partially_paid';
+        } else {
+            $this->record->payment_status = 'not_paid';
+        }
+
+        $this->record->save();  // Save the updated payment status
+    }
+
+
+
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('amount')
+                    ->label('Amount to Pay')
+                    ->required()
+                    ->numeric()
+                    ->default(function ($get) {
+                        // Calculate remaining amount based on payment status
+                        $record = $get('record');  // Get the current payment record
+                        $totalAmount = $record->reservation->vehicle->vehicleType->price + $record->reservation->service->price;
+                        
+                        if ($record->payment_status == 'partialy_paid') {
+                            // Subtract the already paid amount from the total
+                            return $totalAmount - $record->amount;
+                        }
+                        
+                        return $totalAmount;
+                    }),
+
+                    Forms\Components\TextInput::make('total_amount')
+    ->label('Total Amount')
+    ->disabled()  // Make this field read-only
+    ->afterStateHydrated(function ($state, $record) {
+        // Populate total_amount with the service price
+        if ($record && $record->reservation && $record->reservation->service) {
+            $state->state($record->reservation->service->price);
+        }
+    }),
+
+                
+
+                // You can include other relevant fields, such as payment method, etc.
             ]);
     }
+
 
     public static function table(Table $table): Table
     {
@@ -95,7 +145,14 @@ class PaymentResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\Action::make('pay')
+                    ->label('Pay')
+                    ->action(function ($record) {
+                        return redirect()->route('filament.admin.resources.payments.edit', $record->id);
+                    })
+                    ->visible(function ($record) {
+                        return in_array($record->payment_status, ['not_paid', 'partialy_paid']);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

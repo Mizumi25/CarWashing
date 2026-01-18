@@ -17,14 +17,17 @@ class ReservationFactory extends Factory
      */
     public function definition(): array
     {
+        $useService = $this->faker->boolean; 
+        
         return [
             'user_id' => \App\Models\User::factory(),
             'vehicle_id' => \App\Models\Vehicle::factory(),
-            'service_id' => \App\Models\Service::factory(),
+            'service_id' => $useService ? \App\Models\Service::factory() : null, 
+            'package_id' => $useService ? null : \App\Models\Package::factory(), 
             'schedule_id' => \App\Models\Schedule::factory(),
             'payment_id' => \App\Models\Payment::factory(),
             'reservation_date' => $this->faker->date(),
-            'status' => $this->faker->randomElement(['decline', 'approve', 'pending', 'done', 'not_appeared', 'cancelled', 'ongoing']),
+            'status' => $this->faker->randomElement(['decline', 'approve', 'pending', 'done', 'not_appeared', 'cancelled', 'ongoing', 'completed']),
         ];
     }
 }

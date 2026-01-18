@@ -6,7 +6,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-1">
         <div class="flex justify-start items-center w-full sm:px-6 lg:px-8">
             <livewire:book.reservation-section/>
         </div>

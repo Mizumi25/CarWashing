@@ -19,8 +19,7 @@ class Logout
             $user = Auth::user();
             $user->update(['is_active' => false]);
 
-           //  // Trigger the event to broadcast the updated status
-//             event(new UserActivityUpdated($user->id, false));
+        //  broadcast(new \App\Events\UserActivityUpdated($user->id, false));
         }
 
         Auth::guard('web')->logout();

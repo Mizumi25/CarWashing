@@ -5,197 +5,157 @@ import { CSSRulePlugin } from 'gsap/CSSRulePlugin';
 
 gsap.registerPlugin(ScrollTrigger, CSSRulePlugin);
   
-  gsap.to("#Welcome", {
-    backgroundColor: "#000000",
-    scrollTrigger: {
-      trigger: "#Welcome",   
-      start: "top top",       
-      end: "bottom top",      
-      scrub: true,            
-    }
-  });
+
+
 
 
 
 gsap.registerPlugin(Draggable);
 
-// Slide variables
-let slideDelay = 3;
-let slideDuration = 1;
-let wrap = true;
 
-const no = document.querySelector("#no");
-const slides = document.querySelectorAll('.slide');
-const prevButton = document.querySelector('#prevButton');
-const nextButton = document.querySelector('#nextButton');
-const slidesContainer = document.querySelector('.slides-container');
 
-let numSlides = slides.length;
 
-// Position Slide
-gsap.set(slides, {
-  xPercent: (i) => i * 100,
-  zIndex: (i) => i === 0 ? 10 : 0  // The first slide is on top, others behind
+import Lenis from '@studio-freight/lenis';
+
+import { GLTFLoader } from 'three-stdlib'; // GLTFLoader for 3D model loading
+import { EffectComposer } from 'three-stdlib'; // Post-processing EffectComposer
+import { RenderPass } from 'three-stdlib'; // Render pass for EffectComposer
+import { UnrealBloomPass } from 'three-stdlib'; // Unreal Bloom for glowing effects
+import { OrbitControls } from 'three-stdlib';
+
+import * as THREE from 'three';
+
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x151620);
+
+const camera = new THREE.PerspectiveCamera(
+  70,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+camera.position.set(60, 10, 50);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  powerPreference: "high-performance",
+  alpha: true,
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 0.75;
+document.querySelector(".model").appendChild(renderer.domElement);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xcc8ee8, 1.5);
+directionalLight.position.set(5, 5, 5);
+directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.width = 2048;
+directionalLight.shadow.mapSize.height = 2048;
+scene.add(directionalLight);
+
+const pointLight = new THREE.PointLight(0xffd600, 3, 50);
+pointLight.position.set(4.5, 25, 25);
+pointLight.decay = 5;
+scene.add(pointLight);
+
+const pointLight2 = new THREE.PointLight(0xea00ff, 1.25, 0);
+pointLight2.position.set(-100, 65.5, 20);
+pointLight2.decay = 2;
+scene.add(pointLight2);
+
+const pointLight3 = new THREE.PointLight(0xff4c00, 2.5, 50);
+pointLight3.position.set(10, -10, -25);
+pointLight3.decay = 2;
+scene.add(pointLight3);
+
+const pointLight4 = new THREE.PointLight(0xffd600, 3, 47);
+pointLight4.position.set(52, -25, 25);
+pointLight4.decay = 0.5;
+scene.add(pointLight4);
+
+const composer = new EffectComposer(renderer);
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+const bloomPass = new UnrealBloomPass(
+  new THREE.Vector2(window.innerWidth, window.innerHeight),
+  0.6,
+  1,
+  0.1
+);
+composer.addPass(bloomPass);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.minDistance = 10;
+controls.maxDistance = 50;
+controls.maxPolarAngle = Math.PI / 2;
+
+const createEmissiveMaterial = (color, intensity = 2) => {
+  return new THREE.MeshStandardMaterial({
+    color: color,
+    emissive: color,
+    emissiveIntensity: intensity,
+    toneMapped: false,
+
+  });
+};
+
+scene.add(createEmissiveMaterial);
+
+const loader = new GLTFLoader();
+loader.load("./3dmodels/scene.gltf", function (gltf) {
+  const model = gltf.scene;
+
+  const box = new THREE.Box3().setFromObject(model);
+  const center = box.getCenter(new THREE.Vector3());
+  model.position.sub(center).add(new THREE.Vector3(20, 0, 0));
+
+  scene.add(model);
 });
 
-
-
-const wrapX = gsap.utils.wrap(-100, (numSlides - 1) * 100);
-const progressWrap = gsap.utils.wrap(0, 1);
-
-let proxy = document.createElement("div");
-let slideAnimation = gsap.to({}, {});
-let slideWidth = 0;
-let wrapWidth = 0;
-
-let timer = gsap.delayedCall(slideDelay, autoPlay);
-
-
-let animation = gsap.to(slides, {
-  xPercent: "+=" + (numSlides * 100),
-  duration: 1,
-  ease: "none",
-  paused: true,
-  repeat: -1,
-  modifiers: {
-    xPercent: wrapX
-  }
-});
-
-
-const isMobile = window.innerWidth <= 768; 
-
-
-let draggable;
-if (!isMobile) {
-  draggable = new Draggable(proxy, {
-    trigger: slidesContainer,
-    inertia: false, 
-    onPress: updateDraggable,
-    onDrag: updateProgress,
-    onThrowUpdate: updateProgress,
-    snap: {
-      x: snapX
-    }
-  });
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  composer.render();
 }
 
-resize();  
-
-
-window.addEventListener('resize', resize);
-prevButton.addEventListener('click', () => animateSlides(1));
-nextButton.addEventListener('click', () => animateSlides(-1));
-
-
-function updateDraggable() {
-  timer.restart(true);
-  slideAnimation.kill();
-  this.update();
-}
-
-
-function animateSlides(direction) {
-  timer.restart(true);
-  slideAnimation.kill();
-
-  let currentIndex = Math.round(gsap.getProperty(proxy, 'x') / slideWidth) * -1;
-  let newIndex = currentIndex + direction;
-
-  // Ensure the newIndex wraps correctly between 0 and numSlides - 1
-  newIndex = gsap.utils.wrap(0, numSlides, newIndex);
-
-  // Set the zIndex of the current slide to 0 (behind others)
-  gsap.set(slides[currentIndex], {
-    zIndex: 0
-  });
-
-  // Set the zIndex of the new slide to a higher value (on top)
-  gsap.set(slides[newIndex], {
-    zIndex: 10
-  });
-
-  // Continue with the sliding animation
-  let x = snapX(gsap.getProperty(proxy, 'x') + direction * slideWidth);
-
-  slideAnimation = gsap.to(proxy, {
-    x: x,
-    duration: slideDuration,
-    onUpdate: updateProgress,
-    onComplete: updateSlideNumber
-  });
-}
-
-function updateSlideNumber() {
-    // Calculate the current slide by normalizing the proxy's x position
-    let currentSlide = Math.round(gsap.getProperty(proxy, 'x') / slideWidth) * -1;
-
-    // Wrap the current slide number within the range [0, numSlides-1]
-    currentSlide = gsap.utils.wrap(0, numSlides, currentSlide);
-
-    // Display as a 1-based index (i.e., 1/5 instead of 0/5)
-    no.textContent = `${currentSlide + 1}/${numSlides}`;
-}
-
-
-
-// Autoplay
-function autoPlay() {
-  if (draggable && (draggable.isPressed || draggable.isDragging)) {
-    timer.restart(true);
-  } else {
-    animateSlides(-1);
-  }
-}
-
-
-function updateProgress() {
-  animation.progress(progressWrap(gsap.getProperty(proxy, 'x') / wrapWidth));
-}
-
-
-function snapX(value) {
-  let snapped = gsap.utils.snap(slideWidth, value);
-  return wrap ? snapped : gsap.utils.clamp(-slideWidth * (numSlides - 1), 0, snapped);
-}
-
-// Handle resizing of the window and slides
-function resize() {
-  let norm = (gsap.getProperty(proxy, 'x') / wrapWidth) || 0;
-
-  slideWidth = slides[0].offsetWidth;
-  wrapWidth = slideWidth * numSlides;
-
-  gsap.set(proxy, {
-    x: norm * wrapWidth
-  });
-
-  // Set initial zIndex and xPercent without changing opacity
-  gsap.set(slides, {
-    xPercent: (i) => i * 100,
-    zIndex: (i) => i === 0 ? 10 : 0
-  });
-
-  animateSlides(0);
-  slideAnimation.progress(1);
-}
+animate();
 
 
 
 
-gsap.to(".navigationWelcome", {
+
+
+gsap.to("#navigationWelcome", {
   backgroundColor: "#ffffff", 
   scrollTrigger: {
-    trigger: "#section1Welcome",       
+    trigger: "#Welcome2",       
     start: "bottom top",    
     toggleActions: "play none none reverse", 
     markers: false          
   }
 });
-gsap.to(".navigationWelcome a", {
+gsap.to("#navigationWelcome", {
+  backgroundColor: "#66ff66", 
+  scrollTrigger: {
+    trigger: "#footer",        
+    start: "top bottom",      
+    toggleActions: "play none none reverse",
+    markers: false
+  }
+});
+gsap.to("#navigationWelcome a", {
   color: "#000000", 
   scrollTrigger: {
-    trigger: "#section1Welcome",       
+    trigger: "#Welcome2",       
     start: "bottom top",    
     toggleActions: "play none none reverse", 
     markers: false          
@@ -204,7 +164,7 @@ gsap.to(".navigationWelcome a", {
 gsap.to(".navigationWelcome h1", {
   color: "#000000", 
   scrollTrigger: {
-    trigger: "#section1Welcome",       
+    trigger: "#Welcome2",       
     start: "bottom top",    
     toggleActions: "play none none reverse", 
     markers: false          
@@ -274,12 +234,7 @@ gsap.to(".line p", {
   scrollTrigger: scrollTriggerSettings,
 });
 
-// Animate opening class
-gsap.to(".opening", {
-  y: 0,
-  opacity: 1,
-  delay: 0.25,
-  duration: 0.5,
-  ease: "power1.out",
-  scrollTrigger: scrollTriggerSettings,
-});
+
+
+
+

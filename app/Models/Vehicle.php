@@ -22,7 +22,6 @@ class Vehicle extends Model
         'year',
         'license_plate',
         'color',
-        'mileage',
     ];
     
     // Define relationships

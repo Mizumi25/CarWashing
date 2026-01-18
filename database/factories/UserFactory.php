@@ -23,6 +23,24 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $names = [
+            'Juan dela Cruz',
+            'Maria Clara',
+            'Jose Rizal',
+            'Andres Bonifacio',
+            'Gabriela Silang',
+            'Lapu-Lapu',
+            'Emilio Aguinaldo',
+            'Melchora Aquino',
+            'Apolinario Mabini',
+            'Diego Silang',
+            'Carlos P. Garcia',
+            'Marcela Agoncillo',
+            'Trinidad Tecson',
+            'Leona Florentino',
+            'Gregorio del Pilar'
+        ];
+        
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
@@ -31,7 +49,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
             'role' => 'client',
-            'phone_number' => fake()->numerify('9##########'),
+            'phone_number' => fake()->numerify('09##########'),
             'is_active' => false,
         ];
     }

@@ -1,5 +1,12 @@
 import './bootstrap';
 
+import ApexCharts from 'apexcharts';
+
+
+
+
+
+
 import '../../vendor/masmerise/livewire-toaster/resources/js'; 
 
 import.meta.glob([
@@ -10,6 +17,18 @@ import.meta.glob([
 import '@fortawesome/fontawesome-free/css/all.css';
 
 
+    function playClickSound() {
+        var audio = new Audio('./sounds/sound.mp3'); 
+        audio.play();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var buttons = document.querySelectorAll('button');
+
+        buttons.forEach(function(button) {
+            button.addEventListener('click', playClickSound);
+        });
+    });
 
 
 

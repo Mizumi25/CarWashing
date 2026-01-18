@@ -22,7 +22,7 @@ class Service extends Model
         'price',
         'duration',
         'is_active',
-        'category',
+        'category_id',
         'popularity',
     ];
 
@@ -75,6 +75,16 @@ class Service extends Model
     public function reservations()
     {
         return $this->hasMany(Reservation::class);
+    }
+    
+    public function category()
+    {
+        return $this->belongsTo(Category::class); 
+    }
+
+    public function packages()
+    {
+        return $this->belongsToMany(Service::class, 'package_service','service_id', 'package_id')->withTimestamps();
     }
     
       

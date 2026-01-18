@@ -31,7 +31,7 @@ class ServiceFactory extends Factory
             'price' => fake()->randomFloat(2, 10, 100), 
             'duration' => fake()->numberBetween(30, 180), 
             'is_active' => true,
-            'category' => fake()->word(), 
+            'category_id' => \App\Models\Category::factory(),
             'popularity' => 0, 
         ];
     }

@@ -13,12 +13,13 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Collection;
 
 class CancelledAndDeclinedReservationsResource extends Resource
 {
     protected static ?string $model = Reservation::class;
 
-    protected static ?string $navigationIcon = 'fas-spinner';
+    protected static ?string $navigationIcon = 'fas-box-archive';
     
     protected static ?string $navigationLabel = 'Archive & History';
     
@@ -76,9 +77,41 @@ class CancelledAndDeclinedReservationsResource extends Resource
                         ->title('User restored')
                         ->body('The user has been restored successfully.'),
                 ),
+                Tables\Actions\Action::make('forceDelete') 
+                    ->label('Force Delete')
+                    ->action(function (Reservation $record) {
+                        $record->forceDelete(); 
+                        Notification::make()
+                            ->title('Success')
+                            ->body('Reservation permanently deleted!')
+                            ->success()
+                            ->send();
+                    })
+                    ->color('danger')
+                    ->icon('heroicon-o-trash')
+                    ->requiresConfirmation()
+                    ->modalHeading('Permanently Delete Reservation')
+                    ->modalSubheading('Are you sure you want to permanently delete this reservation? This action cannot be undone.'),
             ])
             ->bulkActions([
-                
+                Tables\Actions\BulkAction::make('forceDelete')
+                    ->label('Force Delete Selected')
+                    ->icon('heroicon-o-trash') 
+                    ->action(function (Collection $records) {
+                        foreach ($records as $record) {
+                            $record->forceDelete(); 
+                        }
+
+                        Notification::make()
+                            ->title('Success')
+                            ->body(count($records) . ' reservation(s) permanently deleted!')
+                            ->success()
+                            ->send();
+                    })
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Permanently Delete Reservations')
+                    ->modalSubheading('Are you sure you want to permanently delete the selected reservations? This action cannot be undone.'),
             ]);
     }
 

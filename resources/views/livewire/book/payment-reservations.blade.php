@@ -3,6 +3,7 @@
 use Livewire\Volt\Component;
 use App\Models\Reservation;
 use Stripe\StripeClient;
+use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 new class extends Component {
     public $amount;
@@ -18,22 +19,28 @@ new class extends Component {
         $reservation = Reservation::with(['service', 'vehicle.vehicleType'])->findOrFail($reservationId);
         
         $servicePrice = $reservation->service->price ?? 0;
+        $packagePrice = ($reservation->package && $reservation->package->original_price && $reservation->package->discount) 
+          ? ($reservation->package->original_price ?? 0) * (1 - ($reservation->package->discount ?? 0) / 100) 
+          : 0;
         $vehicleTypePrice = $reservation->vehicle->vehicleType->price ?? 0;
         $currentDollarRate = 58.07;
-        $totalAmount = ($servicePrice + $vehicleTypePrice) / $currentDollarRate;
+        $totalAmount = ($servicePrice + $vehicleTypePrice + $packagePrice) / $currentDollarRate;
         $this->amount = number_format($totalAmount, 2, '.', '');
         $this->paymentOption = 'full';
 
-        $this->serviceName = $reservation->service->service_name ?? 'Unknown Service';
+        $this->serviceName = $reservation->service->service_name ?? $reservation->package->name ?? 'Unknown';
     }
 
     public function updatedPaymentOption($value)
     {
         $reservation = Reservation::with(['service', 'vehicle.vehicleType'])->findOrFail($this->reservationId);
         $servicePrice = $reservation->service->price ?? 0;
+        $packagePrice = ($reservation->package && $reservation->package->original_price && $reservation->package->discount) 
+          ? ($reservation->package->original_price ?? 0) * (1 - ($reservation->package->discount ?? 0) / 100) 
+          : 0;
         $vehicleTypePrice = $reservation->vehicle->vehicleType->price ?? 0;
         $currentDollarRate = 58.07;
-        $totalAmount = ($servicePrice + $vehicleTypePrice) / $currentDollarRate;
+        $totalAmount = ($servicePrice + $vehicleTypePrice + $packagePrice) / $currentDollarRate;
         
         if ($value === 'full') {
             $this->amount = $totalAmount;
@@ -85,6 +92,84 @@ new class extends Component {
           session()->flash('error', 'Failed to initiate payment: ' . $e->getMessage());
       }
     }
+    
+    
+    
+    
+    
+    
+    
+ 
+   public function processTransaction(Request $request)
+  {
+      $provider = new PayPalClient;
+      $provider->setApiCredentials(config('paypal'));
+      $paypalToken = $provider->getAccessToken();
+      $paymentStatus = (float)$this->paymentOption == 100 ? 'fully_paid' : 'partialy_paid';
+      $response = $provider->createOrder([
+          "intent" => "CAPTURE",
+          "application_context" => [
+              "return_url" => route('reservation.reserved', [
+                  'id' => $this->reservationId,
+                  'service_name' => $this->serviceName,
+                  'amount' => $this->amount,
+                  'payment_method' => 'paypal',
+                  'payment_status' => $paymentStatus,
+              ]),
+              "cancel_url" => route('payment.cancel', [
+                  'reservationId' => $this->reservationId
+              ]),
+          ],
+          "purchase_units" => [
+              0 => [
+                  "amount" => [
+                      "currency_code" => "USD",
+                      "value" => (int)($this->amount * 100),
+                  ]
+              ]
+          ]
+      ]);
+  
+      if (isset($response['id']) && $response['id'] != null) {
+          foreach ($response['links'] as $links) {
+              if ($links['rel'] == 'approve') {
+                  return redirect()->away($links['href']);
+              }
+          }
+          return redirect()
+              ->route('reservations.mamage')
+              ->with('error', 'Something went wrong.');
+      } else {
+          return redirect()
+              ->route('reservations.manage')
+              ->with('error', $response['message'] ?? 'Something went wrong.');
+      }
+  }
+  
+  public function successTransaction(Request $request)
+  {
+      $provider = new PayPalClient;
+      $provider->setApiCredentials(config('paypal'));
+      $provider->getAccessToken();
+      $response = $provider->capturePaymentOrder($request['token']);
+  
+      if (isset($response['status']) && $response['status'] == 'COMPLETED') {
+          return [
+              'success' => true,
+              'message' => 'Transaction complete.',
+          ];
+      } else {
+          return [
+              'success' => false,
+              'message' => $response['message'] ?? 'Something went wrong.',
+          ];
+      }
+  }
+
+
+    
+    
+    
 };
 ?>
 
@@ -107,7 +192,7 @@ new class extends Component {
         </li>
         <li class="mb-10 ms-6">
             <span class="absolute flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full -start-4 ring-4 ring-white dark:ring-gray-900 dark:bg-gray-700">
-               Complete
+               C
             </span>
             <h3 class="font-medium leading-tight">Review</h3>
             <p class="text-sm">Step details here</p>
@@ -142,7 +227,9 @@ new class extends Component {
                             <option value="95">Pay 95%</option>
                         </select>
                     </div>
-                    <button class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" wire:click="initiateCheckout">Proceed to Pay Stripe ${{ number_format($amount, 2, '.', '') }}</button>
+                    <button class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200" wire:click="initiateCheckout"><i class="fa-brands fa-stripe-s"></i> Stripe P{{ number_format($amount * 58.07, 2, '.', '') }}</button>
+                    
+                    <button class="w-full py-2 px-4 bg-violet-600 text-white rounded-lg shadow-md hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 transition duration-200" wire:click="processTransaction"><i class="fa-brands fa-paypal"></i> PayPal P{{ number_format($amount * 58.07, 2, '.', '') }}</button>
 
                     <!-- Error Display -->
                     @if (session()->has('error'))
@@ -153,4 +240,3 @@ new class extends Component {
         </div>
     </div>
 </div>
-

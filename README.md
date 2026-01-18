@@ -22,3 +22,23 @@ Usage: Very weird and unique
 .
 Dependencies: Laravel,Livewire, Filament, Laravel Reverb, pusher sucks,god damn pay to win.
      maybe i will do inertia soon, web designnnnnn✨
+     
+     
+     
+-SANDBOX-
+
+Stripe
+4242 4242 4242 4242
+
+PayPal
+sb-e2b43w30736711@business.example.com
+f<LAXvk1
+
+
+
+if can't upload files or images, go to WINDOW/TEMP enable full control access sa current na user sa pc
+
+
+
+php artisan reservations:update-status
+php artisan reservations:send-reservation-notice

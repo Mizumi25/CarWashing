@@ -5,13 +5,13 @@ namespace App\Events;
 use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Broadcast;
 use App\Events\UserActivityUpdated;
 
-class UserActivityUpdated implements ShouldBroadcast
+class UserActivityUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -27,24 +27,24 @@ class UserActivityUpdated implements ShouldBroadcast
         User::where('id', $user_id)->update(['is_active' => $is_active]);
     }
 
-    // public function broadcastAs()
-//     {
-//         function setBroadcastDriver($driver)
-//         {
-//             config(['broadcasting.default' => $driver]);
-//         }
-//         setBroadcastDriver('');
-// 
-//         return 'user-activity-updated';
-//     }
-// 
-//     public function broadcastOn()
-//     {
-//         return new Channel('user-status-' . $this->user_id); // create a unique channel per user
-//     }
-// 
-//     public function broadcastWith()
-//     {
-//         return ['status' => $this->is_active]; // status data broadcasted
-//     }
+    public function broadcastAs()
+    {
+        function setBroadcastDriver($driver)
+        {
+            config(['broadcasting.default' => $driver]);
+        }
+        setBroadcastDriver('');
+
+        return 'user-activity-updated';
+    }
+
+    public function broadcastOn()
+    {
+        return new Channel('userStatus' . $this->user_id); 
+    }
+
+    public function broadcastWith()
+    {
+        return ['status' => $this->is_active]; 
+    }
 }

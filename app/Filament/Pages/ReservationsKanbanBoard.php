@@ -82,6 +82,8 @@ class ReservationsKanbanBoard extends KanbanBoard
         $reservation->update([
             'status' => $status,
         ]);
+
+        broadcast(new \App\Events\ReservationStatusUpdated($reservation));
     }
 
 
@@ -109,7 +111,7 @@ class ReservationsKanbanBoard extends KanbanBoard
     
         return collect([
             'progress' => $progress,
-            'services' => $record->service->service_name,
+            'services' => $record->service->service_name ?? $record->package->name,
             'names' => $record->user->name,
             'profile_pictures' => $record->user->profile_picture,
             'vehicles' => $record->vehicleTypeName,

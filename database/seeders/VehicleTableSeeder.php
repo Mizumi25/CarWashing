@@ -24,7 +24,6 @@ class VehicleTableSeeder extends Seeder
             'year' => 2022,
             'license_plate' => 'HND-1234',
             'color' => 'Red',
-            'mileage' => 15000,
         ]);
 
         Vehicle::factory()->create([
@@ -35,7 +34,6 @@ class VehicleTableSeeder extends Seeder
             'year' => 2021,
             'license_plate' => 'TES-5678',
             'color' => 'Black',
-            'mileage' => 5000,
         ]);
     }
 }

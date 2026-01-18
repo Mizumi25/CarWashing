@@ -22,7 +22,7 @@ class ServiceTableSeeder extends Seeder
         ]);
 
         Service::factory()->create([
-            'service_name' => 'Full Interior Detail',
+            'service_name' => 'Luxury Car Wash',
             'description' => 'Complete cleaning and detailing of the vehicle\'s interior.',
             'price' => 75.00,
             'duration' => 90, 
@@ -30,7 +30,7 @@ class ServiceTableSeeder extends Seeder
         ]);
 
         Service::factory()->create([
-            'service_name' => 'Engine Cleaning',
+            'service_name' => 'Expensive Cleaning',
             'description' => 'Thorough cleaning of the engine for optimal performance.',
             'price' => 50.00,
             'duration' => 60, 
@@ -46,7 +46,7 @@ class ServiceTableSeeder extends Seeder
         ]);
 
         Service::factory()->create([
-            'service_name' => 'Tire Rotation',
+            'service_name' => 'Tire Cleaning',
             'description' => 'Rotation of tires to ensure even wear.',
             'price' => 30.00,
             'duration' => 30, 

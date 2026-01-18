@@ -41,6 +41,10 @@ new #[Layout('layouts.guest')] class extends Component
                 ->sendToDatabase($admin);
         }
         event(new \App\Events\NewUserNotificationEvent($user->email));
+        
+        event(new Registered($user));
+        
+        
 
 
         Auth::login($user);
@@ -100,8 +104,13 @@ new #[Layout('layouts.guest')] class extends Component
                 {{ __('Already registered?') }}
             </a>
 
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
+            <x-primary-button class="ms-4"
+                wire:loading.attr="disabled"
+                wire:loading.class="bg-gray-400"
+                wire:target="register"
+                >
+                <span wire:loading wire:target="register">Processing...</span>
+                <span wire:loading.remove wire:target="register">{{ __('Register') }}</span>
             </x-primary-button>
         </div>
     </form>
@@ -154,3 +163,4 @@ new #[Layout('layouts.guest')] class extends Component
 
     </script>
 </div>
+

@@ -20,7 +20,6 @@ return new class extends Migration
             $table->year('year');
             $table->string('license_plate')->unique();
             $table->string('color');
-            $table->integer('mileage')->nullable(); // reminder to me again that this is optional
             $table->timestamps();
         });
     }

@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Tabs;
+use App\Models\Category;
 use Filament\Forms\Components\Toggle;
  
 
@@ -33,32 +34,37 @@ class ServiceResource extends Resource
     {
         return $form
             ->schema([
-              Section::make('Main Detail')->description('Put Details here for Service')->schema([
-                  Forms\Components\TextInput::make('service_name')->required()->maxLength(255)
-                    ->rule('regex:/^[a-zA-Z0-9\s]+$/')
-                    ->label('Service Name'),
-                  Forms\Components\FileUpload::make('icon')->disk('public') ->directory('service_icons')->required(),
-                  Forms\Components\MarkdownEditor::make('description')->required()->columnSpanFull(),
+                Section::make('Main Detail')->description('Put Details here for Service')->schema([
+                    Forms\Components\TextInput::make('service_name')->required()->maxLength(255)
+                        ->rule('regex:/^[a-zA-Z0-9\s]+$/')
+                        ->label('Service Name'),
+                    Forms\Components\FileUpload::make('icon')->disk('public')->directory('service_icons')->required(),
+                    Forms\Components\MarkdownEditor::make('description')->required()->columnSpanFull(),
                 ])->columns(2),
+                
                 Tabs::make('Tabs')
-                ->tabs([
-                    Tabs\Tab::make('Bill')
-                        ->schema([
-                            Forms\Components\TextInput::make('price')->numeric()->prefix('P')->required(),
-                        ]),
-                    Tabs\Tab::make('Activity')
-                        ->schema([
-                            Forms\Components\TextInput::make('duration')->numeric()->suffix('mins.')->maxLength(255)->required(),
-                            Toggle::make('is_active')
-                            ->onColor('info')
-                             ->offColor('gray')
-                            ->inline(),
-                            Forms\Components\TextInput::make('category')->required()->maxLength(255),
-                        ])->columns(3),
-                ])
-                ->activeTab(2)
+                    ->tabs([
+                        Tabs\Tab::make('Bill')
+                            ->schema([
+                                Forms\Components\TextInput::make('price')->numeric()->prefix('P')->required(),
+                            ]),
+                        Tabs\Tab::make('Activity')
+                            ->schema([
+                                Forms\Components\TextInput::make('duration')->numeric()->suffix('mins.')->maxLength(255)->required(),
+                                Toggle::make('is_active')
+                                    ->onColor('info')
+                                    ->offColor('gray')
+                                    ->inline(),
+                                Forms\Components\Select::make('category_id') 
+                                    ->label('Category')
+                                    ->options(Category::all()->pluck('name', 'id')) 
+                                    ->required(),
+                            ])->columns(3),
+                    ])
+                    ->activeTab(2)
             ]);
     }
+
 
     public static function table(Table $table): Table
     {
@@ -67,31 +73,34 @@ class ServiceResource extends Resource
                 Tables\Columns\ImageColumn::make('icon'),
                 Tables\Columns\TextColumn::make('service_name')->searchable(),
                 Tables\Columns\TextColumn::make('description')->limit(10),
-                Tables\Columns\TextColumn::make('price')->prefix('P')->searchable(),
+                Tables\Columns\TextColumn::make('price')->money('php')->searchable(),
                 Tables\Columns\TextColumn::make('duration')->suffix('mins.')->searchable(),
                 Tables\Columns\IconColumn::make('is_active')->boolean()->trueColor('info')->falseColor('warning'),
-                Tables\Columns\TextColumn::make('category'),
+                
+                Tables\Columns\TextColumn::make('category.name')
+                    ->label('Category'),
+                
                 Tables\Columns\TextColumn::make('popularity'),
                 Tables\Columns\TextColumn::make('totalRevenue')
-                ->label('Total Revenue')
-                ->prefix('P'),
+                    ->label('Total Revenue')
+                    ->money('php'),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\ViewAction::make()
-                ->link()
-                ->hiddenlabel()
-                ->icon('heroicon-o-chevron-right'),
-                
+                    ->link()
+                    ->hiddenlabel()
+                    ->icon('heroicon-o-chevron-right'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
+
 
     public static function getRelations(): array
     {

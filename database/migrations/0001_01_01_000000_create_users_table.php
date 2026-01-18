@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', ['client', 'admin'])->default('client'); 
             $table->string('profile_picture')->default('profile_pictures/defaultCarWash.png');
-            $table->string('phone_number')->nullable();
+            $table->string('phone_number')->nullable()->unique();
             $table->boolean('is_active')->default(false);
             $table->rememberToken();
             $table->timestamps();

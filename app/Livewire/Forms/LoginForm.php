@@ -50,7 +50,7 @@ class LoginForm extends Form
             return;
         }
 
-        event(new Lockout(request()));
+        broadcast(new Lockout(request()));
 
         $seconds = RateLimiter::availableIn($this->throttleKey());
 

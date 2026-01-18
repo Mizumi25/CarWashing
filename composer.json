@@ -6,7 +6,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "asantibanez/livewire-charts": "^4.1",
+        "aymanalhattami/filament-page-with-sidebar": "^2.5",
         "filament/filament": "^3.2",
+        "hasnayeen/themes": "^3.0",
         "laravel/cashier": "^15.4",
         "laravel/framework": "^11.31.0",
         "laravel/reverb": "^1.0",
@@ -19,6 +22,8 @@
         "owenvoke/blade-fontawesome": "^2.6",
         "pusher/pusher-php-server": "^7.2",
         "ryangjchandler/filament-progress-column": "^1.0",
+        "saade/filament-fullcalendar": "^3.2",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "srmklive/paypal": "^3.0",
         "wire-elements/modal": "^2.0"
     },
@@ -64,7 +69,7 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan reverb:start --port=8086\" \"php artisan queue:listen --tries=1\" \"php artisan pail --timeout=0\"  \"npm run dev\" --names=server,queue,logs,vite"
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan reverb:start --port=8086\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names=server,queue,logs,vite"
         ]
     },
     "extra": {
